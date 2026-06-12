@@ -17,7 +17,8 @@ brew "dust"
 brew "procs"
 brew "lazygit"
 brew "sesh"
-brew "mamba"
+# conda/mamba come from a miniforge install (auto-detected by the zsh config),
+# not from brew.
 brew "llvm"
 brew "gcc"
 brew "ninja"

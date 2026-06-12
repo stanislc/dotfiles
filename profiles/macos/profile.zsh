@@ -18,8 +18,10 @@ if [[ -d "${HOMEBREW_PREFIX:-}/opt/coreutils/libexec/gnubin" ]]; then
     "$HOMEBREW_PREFIX/opt/zip/bin" \
     "$HOMEBREW_PREFIX/opt/gzip/bin"; do
     [[ -d "$_gnu_path" ]] && path=("$_gnu_path" "${path[@]}")
+    _gnu_man="${_gnu_path%/gnubin}/gnuman"
+    [[ -d "$_gnu_man" ]] && export MANPATH="$_gnu_man:${MANPATH:-}"
   done
-  unset _gnu_path
+  unset _gnu_path _gnu_man
 fi
 
 if [[ -d "${HOMEBREW_PREFIX:-}/opt/llvm/bin" ]]; then

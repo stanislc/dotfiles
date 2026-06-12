@@ -35,7 +35,8 @@ for _conda_root in \
   "$HOME/conda" \
   "$HOME/miniconda3" \
   "$HOME/anaconda3" \
-  "$HOME/software/mambaforge"; do
+  "$HOME/software/mambaforge" \
+  "${HOMEBREW_PREFIX:-/opt/homebrew}/Caskroom/miniforge/base"; do
   if [[ -d "$_conda_root/bin" ]]; then
     _path_prepend "$_conda_root/bin"
     break

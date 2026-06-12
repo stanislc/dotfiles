@@ -78,22 +78,11 @@ paths, and project-specific aliases. They are sourced last and never touched
 by the installer. For host-only file snippets, `local/`, `private/`, and
 `secrets/` directories inside the repo are gitignored.
 
-## Privacy Rules
+## Before Committing
 
-Do not commit:
-
-- credentials, tokens, SSH keys, API keys, or keychain bridge scripts
-- shell history, tmux resurrect state, tmux plugin checkouts, Vim plugin checkouts
-- machine caches, backup files, `.DS_Store`, Claude Code logs
-- absolute account paths such as `/Users/name` or `/home/name`
-- private network addresses, Tailnet hostnames, or project-specific paths
-
-All reusable paths should use `$HOME`, `~`, `$XDG_CONFIG_HOME`,
-`$XDG_STATE_HOME`, or command discovery. Before committing, run:
-
-```sh
-./scripts/audit-secrets.sh
-```
+Run `./scripts/audit-secrets.sh` — it scans for credentials, absolute home
+paths, and private network addresses. Anything machine-specific belongs in
+the untracked local overrides above, not in the repo.
 
 ## What Is Included
 

@@ -1,5 +1,12 @@
 # macOS profile. Keep private machine shortcuts in local.zsh.
 
+# Apple Terminal lacks OSC 52; wrap the shell with osc52pty when present.
+# Install: go install github.com/roy2220/osc52pty@latest
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" && -z "$OSC52PTY" && -x "$HOME/go/bin/osc52pty" ]]; then
+  export OSC52PTY=1
+  exec "$HOME/go/bin/osc52pty" /bin/zsh -l
+fi
+
 if [[ -d "${HOMEBREW_PREFIX:-}/opt/coreutils/libexec/gnubin" ]]; then
   for _gnu_path in \
     "$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin" \

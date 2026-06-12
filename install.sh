@@ -151,6 +151,31 @@ clone_if_missing() {
   fi
 }
 
+# Install a single binary from a GitHub release tarball into ~/.local/bin.
+# Used on Linux for tools that apt does not package; macOS gets them via brew.
+install_release_bin() {
+  local url="$1" bin="$2" tmp src
+  command -v "$bin" >/dev/null 2>&1 && return 0
+  if ((dry_run)); then
+    echo "DRY-RUN: install $bin from $url"
+    return 0
+  fi
+  tmp="$(mktemp -d)"
+  if curl -fsSL "$url" -o "$tmp/pkg.tar.gz" && tar -xzf "$tmp/pkg.tar.gz" -C "$tmp"; then
+    src="$(find "$tmp" -type f -name "$bin" | head -1)"
+    if [[ -n "$src" ]]; then
+      mkdir -p "$HOME/.local/bin"
+      install -m 755 "$src" "$HOME/.local/bin/$bin"
+      echo "installed: $bin -> ~/.local/bin/$bin"
+    else
+      echo "no $bin binary in tarball: $url" >&2
+    fi
+  else
+    echo "download failed: $bin" >&2
+  fi
+  rm -rf "$tmp"
+}
+
 install_packages() {
   case "$profile" in
     macos)
@@ -174,6 +199,11 @@ install_packages() {
           [[ -z "$pkg" || "$pkg" == \#* ]] && continue
           run sudo apt-get install -y "$pkg" </dev/null || echo "not in apt: $pkg" >&2
         done <"$repo_dir/packages/linux-sudo-packages.txt"
+        # Debian/Ubuntu rename these; real symlinks (not aliases) so tmux
+        # bindings and scripts find them too.
+        run mkdir -p "$HOME/.local/bin"
+        command -v fd >/dev/null 2>&1 || { command -v fdfind >/dev/null 2>&1 && run ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"; }
+        command -v bat >/dev/null 2>&1 || { command -v batcat >/dev/null 2>&1 && run ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"; }
       else
         echo "No apt-get found; install packages/linux-sudo-packages.txt manually." >&2
       fi
@@ -183,9 +213,20 @@ install_packages() {
       ;;
   esac
 
-  # starship is not in apt and is core to the prompt; user-local install.
-  if [[ "$profile" != macos ]] && ! command -v starship >/dev/null 2>&1; then
-    run sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y -b "$HOME/.local/bin"
+  # Tools apt does not package; user-local installs (work without sudo).
+  if [[ "$profile" != macos ]]; then
+    if ! command -v starship >/dev/null 2>&1; then
+      run sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y -b "$HOME/.local/bin"
+    fi
+    local arch sesh_arch lg_ver
+    arch="$(uname -m)"
+    sesh_arch="x86_64"; [[ "$arch" == aarch64 || "$arch" == arm64 ]] && sesh_arch="arm64"
+    install_release_bin "https://github.com/joshmedeski/sesh/releases/latest/download/sesh_Linux_${sesh_arch}.tar.gz" sesh
+    install_release_bin "https://github.com/atuinsh/atuin/releases/latest/download/atuin-${arch}-unknown-linux-gnu.tar.gz" atuin
+    if ! command -v lazygit >/dev/null 2>&1; then
+      lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -om1 '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
+      [[ -n "$lg_ver" ]] && install_release_bin "https://github.com/jesseduffield/lazygit/releases/download/${lg_ver}/lazygit_${lg_ver#v}_linux_${sesh_arch}.tar.gz" lazygit
+    fi
   fi
 
   # Conda comes from the official miniforge installer (never brew/apt); the

@@ -9,6 +9,7 @@ zoxide
 direnv
 eza
 bat
+duf
 fd-find
 ripgrep
 git

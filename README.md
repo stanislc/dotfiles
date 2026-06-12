@@ -31,8 +31,9 @@ Then run `:PlugInstall` once in Vim/Neovim.
    macOS, `packages/linux-sudo-packages.txt` via apt on Linux with sudo. On
    no-sudo machines it points to `packages/linux-nosudo-notes.md` instead.
    Conda is installed via the official miniforge installer when absent
-   (never via brew or apt); starship likewise gets a user-local install on
-   Linux.
+   (never via brew or apt). Tools apt does not package — starship, sesh,
+   atuin, lazygit — get user-local installs into `~/.local/bin` on Linux,
+   so they work on no-sudo hosts too.
 3. **Bootstraps plugins**: TPM for tmux (plugins installed headlessly),
    vim-plug for Vim/Neovim, and (on Linux) fzf-tab, zsh-autosuggestions, and
    zsh-syntax-highlighting into `~/.local/share/`.

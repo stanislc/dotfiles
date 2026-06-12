@@ -19,5 +19,5 @@ command -v procs >/dev/null 2>&1 && alias ps='procs'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-alias lg='lazygit'
+command -v lazygit >/dev/null 2>&1 && alias lg='lazygit'
 

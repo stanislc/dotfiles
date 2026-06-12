@@ -263,10 +263,14 @@ install_packages() {
   done
   command -v conda >/dev/null 2>&1 && has_conda=1
   if ((!has_conda)); then
-    run curl -fsSL -o /tmp/miniforge.sh \
+    # Private temp dir (0700, unpredictable name) — no symlink/TOCTOU window
+    # on shared cluster hosts, same as install_release_bin.
+    local _mf
+    _mf="$(mktemp -d)/miniforge.sh"
+    run curl -fsSL -o "$_mf" \
       "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-    run bash /tmp/miniforge.sh -b -p "$HOME/miniforge3"
-    run rm -f /tmp/miniforge.sh
+    run bash "$_mf" -b -p "$HOME/miniforge3"
+    run rm -rf "$(dirname "$_mf")"
   fi
 }
 

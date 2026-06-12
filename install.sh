@@ -187,6 +187,15 @@ install_packages() {
   if [[ "$profile" != macos ]] && ! command -v starship >/dev/null 2>&1; then
     run sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y -b "$HOME/.local/bin"
   fi
+
+  # Conda comes from the official miniforge installer (never brew/apt); the
+  # zsh config auto-detects ~/miniforge3.
+  if ! command -v conda >/dev/null 2>&1 && [[ ! -d "$HOME/miniforge3" ]]; then
+    run curl -fsSL -o /tmp/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+    run bash /tmp/miniforge.sh -b -p "$HOME/miniforge3"
+    run rm -f /tmp/miniforge.sh
+  fi
 }
 
 if ((skip_packages)); then
@@ -229,6 +238,10 @@ ensure_zsh_default
 
 # Plugin managers and zsh plugins that no package manager provides everywhere.
 clone_if_missing https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm"
+# Headless tmux plugin install so no manual prefix+I is needed.
+if command -v tmux >/dev/null 2>&1 && [[ -x "$HOME/.config/tmux/plugins/tpm/bin/install_plugins" ]]; then
+  run "$HOME/.config/tmux/plugins/tpm/bin/install_plugins" || echo "tmux plugin install failed; run prefix+I inside tmux." >&2
+fi
 if [[ ! -f "$HOME/.vim/autoload/plug.vim" ]]; then
   run curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -245,4 +258,4 @@ fi
 
 echo "Installed profile: $profile"
 echo "Optional local overrides: $HOME/.config/dotfiles/local.zsh"
-echo "Next steps: restart your shell, then in tmux press prefix+I to install plugins."
+echo "Next step: restart your shell (exec zsh)."

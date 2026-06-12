@@ -22,8 +22,7 @@ cd ~/dotfiles
 exec zsh
 ```
 
-Then inside tmux press `prefix + I` once to install tmux plugins, and run
-`:PlugInstall` once in Vim/Neovim.
+Then run `:PlugInstall` once in Vim/Neovim.
 
 `install.sh` does three things, in order:
 
@@ -31,9 +30,12 @@ Then inside tmux press `prefix + I` once to install tmux plugins, and run
 2. **Installs packages** for the profile: Homebrew + `packages/Brewfile` on
    macOS, `packages/linux-sudo-packages.txt` via apt on Linux with sudo. On
    no-sudo machines it points to `packages/linux-nosudo-notes.md` instead.
-3. **Bootstraps plugin managers**: TPM for tmux, vim-plug for Vim/Neovim, and
-   (on Linux) fzf-tab, zsh-autosuggestions, and zsh-syntax-highlighting into
-   `~/.local/share/`.
+   Conda is installed via the official miniforge installer when absent
+   (never via brew or apt); starship likewise gets a user-local install on
+   Linux.
+3. **Bootstraps plugins**: TPM for tmux (plugins installed headlessly),
+   vim-plug for Vim/Neovim, and (on Linux) fzf-tab, zsh-autosuggestions, and
+   zsh-syntax-highlighting into `~/.local/share/`.
 
 Useful flags:
 

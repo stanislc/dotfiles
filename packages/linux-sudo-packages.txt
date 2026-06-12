@@ -1,0 +1,17 @@
+# One package per line; '#' lines are skipped. Debian/Ubuntu names.
+# starship is not in apt: curl -sS https://starship.rs/install.sh | sh
+tmux
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+fzf
+zoxide
+direnv
+eza
+bat
+fd-find
+ripgrep
+git
+gh
+vim
+

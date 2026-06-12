@@ -1,0 +1,23 @@
+.DS_Store
+*.bak
+*.bak-*
+packages/Brewfile.local
+*.secret
+*.secrets
+
+# Runtime state and plugin checkouts
+home/.config/tmux/plugins/
+home/.tmux/
+home/.vim/plugged/
+home/.vim/autoload/plug.vim
+home/.vim/.netrwhist
+
+# Machine-local overrides and private material
+local/
+private/
+secrets/
+*.key
+*.pem
+*.token
+*.credentials.json
+

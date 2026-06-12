@@ -1,0 +1,90 @@
+# -----------------------------
+# General Behavior
+# -----------------------------
+confirm-close-surface = false
+quit-after-last-window-closed = false
+window-save-state = always
+shell-integration-features=true
+command = /bin/zsh
+# -----------------------------
+# Clipboard
+# -----------------------------
+clipboard-read = allow
+clipboard-write = allow
+
+# -----------------------------
+# Appearance
+# -----------------------------
+#window-theme = system
+window-theme = ghostty
+#theme = dark:One Half Dark,light:One Half Light
+#theme = light:Material, dark:Material Darker
+#theme = light:Ayu Light, dark:Ayu
+theme = dark:One Double Dark,light:One Double Light
+#background-blur = macos-glass-regular
+background-blur = true 
+background-opacity = 0.9
+palette-generate = true
+palette-harmonious = true
+# Window layout
+window-width = 120
+window-height = 32
+window-padding-balance = false
+window-padding-x = 16
+window-padding-y =  0,0
+window-padding-color = extend
+window-step-resize = true
+window-vsync = true
+scrollbar = never
+split-divider-color = #FF9500
+
+# macOS specific
+title = ""
+macos-titlebar-style = tabs
+macos-non-native-fullscreen = visible-menu
+macos-option-as-alt = true
+
+# -----------------------------
+# Fonts & Cursor
+# -----------------------------
+
+font-family = "LigaSFMono Nerd Font"
+#font-family = "JetBrainsMono Nerd Font Propo"
+font-size = 16
+font-style = Medium
+bold-is-bright = true
+
+# Optional tweaks
+adjust-cell-height = 10%
+font-thicken = true
+font-thicken-strength = 50
+
+# Window title font
+window-title-font-family = "LigaSFMono Nerd Font Bold"
+#window-title-font-family = "Jet Brains Mono Nerd Font"
+#window-colorspace = display-p3
+# Cursor
+cursor-style-blink = true
+
+font-feature = +calt
+font-feature = +liga
+font-feature = +dlig
+font-feature = +curs
+font-feature = ss03
+# -----------------------------
+# Notifications
+# -----------------------------
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = bell,notify
+notify-on-command-finish-after = 10s
+
+# -----------------------------
+# Quick Terminal
+# -----------------------------
+quick-terminal-position = center
+quick-terminal-animation-duration = 0
+
+# -----------------------------
+# Input Behavior
+# -----------------------------
+mouse-hide-while-typing = true

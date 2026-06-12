@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# OSC 52 clipboard copy — works over SSH and through terminal multiplexers.
+# Unlike native tmux/zellij OSC 52 forwarding (focused client only), this
+# writes the sequence to EVERY client attached to the current session, so all
+# terminals receive the clipboard when several clients are attached.
+# Usage: echo "text" | osc-copy
+
+data=$(base64 | tr -d '\n')
+osc="\e]52;c;${data}\a"
+
+is_writable_tty() {
+  [[ "$1" == /dev/* && -c "$1" && -w "$1" ]]
+}
+
+# One tty per line for every client attached to the current session.
+# Multiplexers are checked before SSH_TTY because SSH_TTY goes stale after
+# detach/reattach; client ttys are always live.
+client_ttys() {
+  local pid cmdline
+
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux list-clients -t "$(tmux display-message -p '#{session_id}')" \
+      -F '#{client_tty}' 2>/dev/null
+    return
+  fi
+
+  # Zellij has no client-tty query; match attached client processes (Linux /proc).
+  if [[ -n "${ZELLIJ_SESSION_NAME:-}" && -d /proc ]]; then
+    for pid in $(pgrep -u "$USER" zellij 2>/dev/null); do
+      cmdline=$(tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null)
+      [[ "$cmdline" == *"$ZELLIJ_SESSION_NAME"* ]] && readlink "/proc/$pid/fd/0" 2>/dev/null
+    done
+  fi
+}
+
+sent=0
+while IFS= read -r tty; do
+  is_writable_tty "$tty" && printf '%b' "$osc" >"$tty" && sent=1
+done < <(client_ttys | sort -u)
+((sent)) && exit 0
+
+# Fallbacks when no client tty was found.
+if [[ -n "${SSH_TTY:-}" && -w "${SSH_TTY:-}" ]]; then
+  printf '%b' "$osc" >"$SSH_TTY"
+elif [[ -n "${TMUX:-}" ]]; then
+  # DCS passthrough; needs `allow-passthrough on` to reach the terminal.
+  printf '%b' "\ePtmux;\e${osc}\e\\" >/dev/tty
+elif [[ "$TERM" == screen* ]]; then
+  printf '%b' "\eP${osc}\e\\" >/dev/tty
+else
+  printf '%b' "$osc" >/dev/tty
+fi

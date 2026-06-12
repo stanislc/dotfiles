@@ -1,0 +1,7 @@
+auto_activate: True
+changeps1: False
+channel_priority: strict
+solver: libmamba
+channels:
+  - conda-forge
+

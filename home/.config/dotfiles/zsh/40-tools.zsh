@@ -64,7 +64,7 @@ if command -v atuin >/dev/null 2>&1; then
 fi
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="${ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE:-fg=244}"
-ZSH_AUTOSUGGEST_STRATEGY=(${ZSH_AUTOSUGGEST_STRATEGY:-history completion})
+ZSH_AUTOSUGGEST_STRATEGY=(${=ZSH_AUTOSUGGEST_STRATEGY:-history completion})
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="${ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE:-20}"
 _source_first \
   "${HOMEBREW_PREFIX:-}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
@@ -90,7 +90,9 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(${ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
+# ${=...} forces word-splitting: zsh keeps an unquoted default as ONE element,
+# which would make the plugin build an invalid `typeset ..._main brackets_cache`.
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(${=ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
 _source_first \
   "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
   /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \

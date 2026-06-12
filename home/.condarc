@@ -4,4 +4,11 @@ channel_priority: strict
 solver: libmamba
 channels:
   - conda-forge
+# Keep envs outside the conda root so reinstalls don't lose them.
+envs_dirs:
+  - ~/.conda/envs
+# Parallel downloads (helps on slow/NFS filesystems).
+repodata_threads: 4
+fetch_threads: 4
+default_threads: 4
 

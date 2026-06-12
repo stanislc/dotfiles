@@ -1,0 +1,9 @@
+# Atuin settings (active values only; see https://docs.atuin.sh/configuration/config/)
+enter_accept = true
+[stats]
+[keys]
+[sync]
+records = true
+[preview]
+[daemon]
+[search]

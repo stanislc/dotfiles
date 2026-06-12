@@ -92,8 +92,13 @@ the untracked local overrides above, not in the repo.
 - `home/.zshenv`: non-interactive PATH bootstrap
 - `home/.zprofile`: login-shell additions
 - `home/.zshrc`: interactive shell entrypoint
-- `home/.bashrc`: bash fallback mirroring the zsh flow (ble.sh, fzf, zoxide,
-  direnv, atuin, starship) for hosts where zsh is unavailable
+- `home/.bashrc` + `home/.bash_profile`: bash fallback mirroring the zsh flow
+  (ble.sh, fzf, zoxide, direnv, atuin, starship); login bash exec's zsh where
+  available
+- `home/.gitconfig` + `home/.config/git/ignore`: git identity, delta pager,
+  global ignore; machine overrides go in untracked `~/.gitconfig.local`
+- `home/.config/atuin/config.toml`: atuin history settings
+- `home/.config/starship-home.toml`: slimmer prompt used inside `$HOME`
 - `home/.config/dotfiles/zsh/*.zsh`: zsh modules (history, completion, aliases, conda, tools, tmux)
 - `home/.config/tmux/tmux.conf`: tmux defaults, modal controls, restore behavior
 - `home/.config/tmux/scripts/*.sh`: tmux helper scripts
@@ -108,7 +113,12 @@ the untracked local overrides above, not in the repo.
 
 ## Daily Use
 
-- `ta [session]` — attach to a tmux session, creating it if needed (default: `main`).
+- `ta [session]` — attach to a tmux session, restoring saved sessions via
+  tmux-resurrect when the server is down, creating it if needed (default: `main`).
+- `zac <session>` — zellij attach-or-create.
+- `Ctrl+F` — fuzzy command palette with one-line descriptions (`fzf-rebuild-cache` to refresh).
+- Tab completion loads lazily on first press (faster shell startup).
+- SLURM aliases (`sq`, `sqw`, `sj`, ...) activate automatically on HPC hosts.
 - tmux auto-saves every 5 minutes (`tmux-continuum`) and restores saved
   sessions when the server starts.
 - After an intentional `kill-session`, a lightweight snapshot is written so

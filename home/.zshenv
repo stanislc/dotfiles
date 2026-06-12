@@ -26,7 +26,10 @@ _path_prepend "$HOME/.local/bin"
 _path_prepend "$HOME/.cargo/bin"
 _path_prepend "$HOME/go/bin"
 _path_prepend "$HOME/.bun/bin"
+_path_prepend "$HOME/.claude/bin"
 _path_prepend "$HOME/.local/dnfroot/usr/bin"
+
+export CLAUDE_CODE_DISABLE_TERMINAL_TITLE="${CLAUDE_CODE_DISABLE_TERMINAL_TITLE:-1}"
 
 # Conda/Mamba roots. Prefer user-local roots and avoid account-specific paths.
 for _conda_root in \
@@ -46,7 +49,7 @@ unset _conda_root
 
 # NVM node for non-interactive tools.
 if [[ -d "$HOME/.nvm/versions/node" ]]; then
-  _nvm_node_dir="$(command ls -d "$HOME/.nvm/versions/node"/v* 2>/dev/null | sort | tail -1)"
+  _nvm_node_dir="$(command ls -d "$HOME/.nvm/versions/node"/v* 2>/dev/null | sort -V | tail -1)"
   [[ -n "$_nvm_node_dir" && -d "$_nvm_node_dir/bin" ]] && _path_prepend "$_nvm_node_dir/bin"
   unset _nvm_node_dir
 fi

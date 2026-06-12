@@ -1,7 +1,9 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# Tolerate slow modules (conda, git in big repos) without warnings.
+# Increase scan timeout for large directories (default is 30ms)
 command_timeout = 1000
+scan_timeout = 1000
+follow_symlinks = false
 
 [aws]
 symbol = " "
@@ -14,16 +16,9 @@ symbol = " "
 
 [c]
 symbol = " "
-detect_extensions = ["c", "h"]
-commands = [["gcc-15", "--version"], ["gcc", "--version"], ["cc", "--version"]]
 
 [cpp]
 symbol = " "
-disabled = false
-detect_extensions = ["cpp", "cc", "cxx", "c++", "hpp", "hh", "hxx", "h++"]
-detect_files = ["CMakeLists.txt", "meson.build"]
-detect_folders = []
-commands = [["g++-15", "--version"], ["g++", "--version"], ["c++", "--version"]]
 
 [cmake]
 symbol = " "
@@ -43,9 +38,6 @@ symbol = " "
 
 [directory]
 read_only = " 󰌾"
-
-[direnv]
-disabled = false
 
 [docker_context]
 symbol = " "
@@ -69,11 +61,11 @@ symbol = " "
 symbol = " "
 
 [git_branch]
-symbol = " "
-
+disabled = true
 [git_commit]
-tag_symbol = '  '
-
+disabled = true
+[git_state]
+disabled = true
 [golang]
 symbol = " "
 
@@ -189,20 +181,10 @@ symbol = " "
 symbol = "󰏗 "
 
 [python]
-symbol = " "
 detect_extensions = []
-detect_files = [
-  "pyproject.toml",
-  "requirements.txt",
-  "requirements-dev.txt",
-  "setup.py",
-  "setup.cfg",
-  "tox.ini",
-  "uv.lock",
-  "poetry.lock",
-]
-detect_folders = []
-format = 'via [${symbol}${version} (\($virtualenv\) )]($style)'
+detect_files = []
+detect_folders = ['!.claude','!.codex']
+symbol = " "
 
 [rlang]
 symbol = "󰟔 "
@@ -218,7 +200,6 @@ symbol = " "
 
 [status]
 symbol = " "
-disabled = false
 
 [swift]
 symbol = " "
@@ -234,16 +215,7 @@ min_time = 2_000
 format = "took [$duration]($style) "
 style = "yellow"
 
-[battery]
-
-[[battery.display]]
-threshold = 20
-style = 'bold red'
-
-[[battery.display]] # 'bold yellow' style and 💦 symbol when capacity is between 10% and 30%
-threshold = 30
-style = 'bold yellow'
-
-[[battery.display]] # 'bold yellow' style and 💦 symbol when capacity is between 10% and 30%
-threshold = 10
-style = 'bold green'
+[git_status]
+disabled = true
+[git_metrics]
+disabled = true

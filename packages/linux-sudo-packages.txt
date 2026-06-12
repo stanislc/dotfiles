@@ -13,6 +13,7 @@ duf
 fd-find
 ripgrep
 git
+git-delta
 gh
 vim
 

@@ -47,3 +47,16 @@ alias cnu="mamba update"
 alias cnua="mamba update --all"
 alias cnuc="mamba update conda"
 
+# Auto-activate the env named in ./environment.yml when cd-ing into a project.
+if [[ -n "${CONDA_PATH:-}" ]]; then
+  auto_conda_activate() {
+    [[ -f environment.yml ]] || return 0
+    local env_name
+    env_name="$(grep '^name:' environment.yml | cut -d' ' -f2)"
+    if [[ -n "$env_name" && "${CONDA_DEFAULT_ENV:-}" != "$env_name" ]]; then
+      conda activate "$env_name" 2>/dev/null
+    fi
+  }
+  add-zsh-hook chpwd auto_conda_activate
+fi
+

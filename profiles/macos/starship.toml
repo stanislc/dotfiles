@@ -1,5 +1,8 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# Tolerate slow modules (conda, git in big repos) without warnings.
+command_timeout = 1000
+
 [aws]
 symbol = " "
 

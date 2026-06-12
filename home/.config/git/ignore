@@ -1,0 +1,21 @@
+# Claude Code — local-only files (never commit these)
+CLAUDE.md
+.claude/
+.claude-session
+.hookify.*
+
+# Cursor / AI editor rules
+.cursorrules
+.cursorignore
+
+# ruff/mypy caches
+.ruff_cache/
+.mypy_cache/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db

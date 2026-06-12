@@ -119,6 +119,11 @@ link_file "$repo_dir/home/.zshenv" "$HOME/.zshenv"
 link_file "$repo_dir/home/.zprofile" "$HOME/.zprofile"
 link_file "$repo_dir/home/.zshrc" "$HOME/.zshrc"
 link_file "$repo_dir/home/.bashrc" "$HOME/.bashrc"
+link_file "$repo_dir/home/.bash_profile" "$HOME/.bash_profile"
+link_file "$repo_dir/home/.gitconfig" "$HOME/.gitconfig"
+link_file "$repo_dir/home/.config/git/ignore" "$HOME/.config/git/ignore"
+link_file "$repo_dir/home/.config/atuin/config.toml" "$HOME/.config/atuin/config.toml"
+link_file "$repo_dir/home/.config/starship-home.toml" "$HOME/.config/starship-home.toml"
 link_file "$repo_dir/home/.vimrc" "$HOME/.vimrc"
 link_file "$repo_dir/home/.config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
 link_file "$repo_dir/home/.condarc" "$HOME/.condarc"
@@ -126,6 +131,10 @@ link_file "$repo_dir/home/.condarc" "$HOME/.condarc"
 link_file "$repo_dir/home/.local/bin/osc-copy" "$HOME/.local/bin/osc-copy"
 link_file "$repo_dir/home/.config/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
 
+# tmux loads ~/.tmux.conf IN ADDITION to the XDG config; retire any leftover.
+if [[ -e "$HOME/.tmux.conf" || -L "$HOME/.tmux.conf" ]]; then
+  run mv "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak-$(date +%Y%m%d%H%M%S)"
+fi
 link_file "$repo_dir/home/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 for script in "$repo_dir"/home/.config/tmux/scripts/*.sh; do
   link_file "$script" "$HOME/.config/tmux/scripts/$(basename "$script")"
@@ -192,18 +201,26 @@ install_packages() {
       fi
       ;;
     linux-sudo)
-      if command -v apt-get >/dev/null 2>&1; then
-        run sudo apt-get update
-        # Per-package so one missing name does not abort the rest.
-        while IFS= read -r pkg; do
-          [[ -z "$pkg" || "$pkg" == \#* ]] && continue
-          run sudo apt-get install -y "$pkg" </dev/null || echo "not in apt: $pkg" >&2
-        done <"$repo_dir/packages/linux-sudo-packages.txt"
-        # Debian/Ubuntu rename these; real symlinks (not aliases) so tmux
-        # bindings and scripts find them too.
-        run mkdir -p "$HOME/.local/bin"
-        command -v fd >/dev/null 2>&1 || { command -v fdfind >/dev/null 2>&1 && run ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"; }
-        command -v bat >/dev/null 2>&1 || { command -v batcat >/dev/null 2>&1 && run ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"; }
+      if command -v brew >/dev/null 2>&1; then
+        # Linuxbrew host: the Brewfile is the package source (casks are macOS-only).
+        grep -v '^cask ' "$repo_dir/packages/Brewfile" | run brew bundle --file=-
+      elif command -v apt-get >/dev/null 2>&1; then
+        # Password sudo aborts non-interactive runs; check before starting.
+        if sudo -n true 2>/dev/null || { [[ -t 0 ]] && sudo -v; }; then
+          run sudo apt-get update
+          # Per-package so one missing name does not abort the rest.
+          while IFS= read -r pkg; do
+            [[ -z "$pkg" || "$pkg" == \#* ]] && continue
+            run sudo apt-get install -y "$pkg" </dev/null || echo "not in apt: $pkg" >&2
+          done <"$repo_dir/packages/linux-sudo-packages.txt"
+          # Debian/Ubuntu rename these; real symlinks (not aliases) so tmux
+          # bindings and scripts find them too.
+          run mkdir -p "$HOME/.local/bin"
+          command -v fd >/dev/null 2>&1 || { command -v fdfind >/dev/null 2>&1 && run ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"; }
+          command -v bat >/dev/null 2>&1 || { command -v batcat >/dev/null 2>&1 && run ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"; }
+        else
+          echo "sudo needs a password; rerun interactively or use --skip-packages. Skipping apt packages." >&2
+        fi
       else
         echo "No apt-get found; install packages/linux-sudo-packages.txt manually." >&2
       fi
@@ -227,11 +244,25 @@ install_packages() {
       lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -om1 '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
       [[ -n "$lg_ver" ]] && install_release_bin "https://github.com/jesseduffield/lazygit/releases/download/${lg_ver}/lazygit_${lg_ver#v}_linux_${sesh_arch}.tar.gz" lazygit
     fi
+    # git-delta: the linked .gitconfig sets core.pager=delta.
+    if ! command -v delta >/dev/null 2>&1; then
+      local d_ver
+      d_ver="$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | grep -om1 '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
+      [[ -n "$d_ver" ]] && install_release_bin "https://github.com/dandavison/delta/releases/download/${d_ver}/delta-${d_ver}-${arch}-unknown-linux-gnu.tar.gz" delta
+    fi
   fi
 
-  # Conda comes from the official miniforge installer (never brew/apt); the
-  # zsh config auto-detects ~/miniforge3.
-  if ! command -v conda >/dev/null 2>&1 && [[ ! -d "$HOME/miniforge3" ]]; then
+  # Conda comes from the official miniforge installer (never brew/apt).
+  # Walk every detection root: PATH alone misses conda in non-login shells,
+  # and a second install at ~/miniforge3 would shadow an existing root.
+  local _conda_root has_conda=0
+  for _conda_root in "$HOME/miniforge3" "$HOME/mambaforge" "$HOME/conda" \
+    "$HOME/miniconda3" "$HOME/anaconda3" "$HOME/software/mambaforge" \
+    /opt/homebrew/Caskroom/miniforge/base; do
+    [[ -x "$_conda_root/bin/conda" ]] && { has_conda=1; break; }
+  done
+  command -v conda >/dev/null 2>&1 && has_conda=1
+  if ((!has_conda)); then
     run curl -fsSL -o /tmp/miniforge.sh \
       "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
     run bash /tmp/miniforge.sh -b -p "$HOME/miniforge3"
@@ -245,8 +276,8 @@ else
   install_packages
 fi
 
-# Make zsh the login shell (Linux defaults to bash). chsh is often blocked on
-# managed/no-sudo hosts; fall back to exec'ing zsh from ~/.bash_profile.
+# Make zsh the login shell (Linux defaults to bash). Where chsh is blocked,
+# the linked ~/.bash_profile already exec's zsh, so no append hack is needed.
 ensure_zsh_default() {
   local zsh_path
   zsh_path="$(command -v zsh || true)"
@@ -255,24 +286,10 @@ ensure_zsh_default() {
     return
   fi
   [[ "$(basename "${SHELL:-}")" == zsh ]] && return
-  if ((dry_run)); then
-    run chsh -s "$zsh_path"
-    return
-  fi
-  if chsh -s "$zsh_path" 2>/dev/null; then
+  if run chsh -s "$zsh_path" 2>/dev/null; then
     echo "Login shell set to $zsh_path (takes effect on next login)."
-  elif ! grep -q 'dotfiles: exec zsh' "$HOME/.bash_profile" 2>/dev/null; then
-    cat >>"$HOME/.bash_profile" <<'BASHEOF'
-
-# dotfiles: exec zsh when chsh is not permitted on this host.
-if [ -t 1 ] && [ -z "${ZSH_VERSION:-}" ] && command -v zsh >/dev/null 2>&1; then
-  export SHELL="$(command -v zsh)"
-  exec zsh -l
-fi
-# Still in bash (no zsh on this host): use the bash fallback config.
-[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
-BASHEOF
-    echo "chsh not permitted; added exec-zsh fallback to ~/.bash_profile."
+  else
+    echo "chsh not permitted; ~/.bash_profile will exec zsh instead."
   fi
 }
 ensure_zsh_default

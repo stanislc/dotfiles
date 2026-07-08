@@ -1,6 +1,5 @@
 brew "starship"
 brew "tmux"
-brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "zsh-completions"
 brew "fzf"
@@ -48,4 +47,3 @@ brew "zip"
 brew "gzip"
 
 cask "ghostty"
-

@@ -62,17 +62,6 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh --disable-up-arrow)"
 fi
 
-if [[ "${DOTFILES_AUTOSUGGEST:-0}" == 1 || ( -z "${SSH_CONNECTION:-}" && "${TERM:-}" != xterm-ghostty && "${TERM_PROGRAM:-}" != ghostty ) ]]; then
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="${ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE:-fg=244}"
-  ZSH_AUTOSUGGEST_STRATEGY=(${=ZSH_AUTOSUGGEST_STRATEGY:-history completion})
-  ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="${ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE:-20}"
-  _source_first \
-    "${HOMEBREW_PREFIX:-}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
-    /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-    /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
-    "$HOME/.local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi
-
 if command -v starship >/dev/null 2>&1; then
   # Use a slimmer prompt config in $HOME and ~/.claude when one is bundled.
   if [[ -r "$HOME/.config/starship-home.toml" ]]; then

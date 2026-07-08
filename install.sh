@@ -330,7 +330,6 @@ if [[ ! -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim" ]]
 fi
 if [[ "$profile" != macos ]]; then
   clone_if_missing https://github.com/Aloxaf/fzf-tab "$HOME/.local/share/fzf-tab"
-  clone_if_missing https://github.com/zsh-users/zsh-autosuggestions "$HOME/.local/share/zsh-autosuggestions"
   clone_if_missing https://github.com/zsh-users/zsh-syntax-highlighting "$HOME/.local/share/zsh-syntax-highlighting"
 fi
 

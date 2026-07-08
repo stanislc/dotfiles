@@ -2,7 +2,6 @@
 # starship is not in apt: curl -sS https://starship.rs/install.sh | sh
 tmux
 zsh
-zsh-autosuggestions
 zsh-syntax-highlighting
 fzf
 zoxide
@@ -16,4 +15,3 @@ git
 git-delta
 gh
 vim
-

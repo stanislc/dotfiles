@@ -4,7 +4,7 @@
 confirm-close-surface = false
 quit-after-last-window-closed = false
 window-save-state = always
-shell-integration-features=true
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
 command = /bin/zsh
 # -----------------------------
 # Clipboard

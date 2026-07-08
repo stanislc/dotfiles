@@ -80,13 +80,13 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# ${=...} forces word-splitting: zsh keeps an unquoted default as ONE element,
-# which would make the plugin build an invalid `typeset ..._main brackets_cache`.
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(${=ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
-_source_first \
-  "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
-  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  "$HOME/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+if [[ -z "${SSH_CONNECTION:-}" && "${TERM:-}" != xterm-ghostty && "${TERM_PROGRAM:-}" != ghostty ]]; then
+  ZSH_HIGHLIGHT_HIGHLIGHTERS=(${=ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
+  _source_first \
+    "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
+    /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+    "$HOME/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 unsetopt correct_all

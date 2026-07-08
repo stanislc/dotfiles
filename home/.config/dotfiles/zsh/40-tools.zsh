@@ -62,6 +62,15 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh --disable-up-arrow)"
 fi
 
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="${ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE:-fg=244}"
+ZSH_AUTOSUGGEST_STRATEGY=(${=ZSH_AUTOSUGGEST_STRATEGY:-history completion})
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="${ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE:-20}"
+_source_first \
+  "${HOMEBREW_PREFIX:-}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  "$HOME/.local/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
 if command -v starship >/dev/null 2>&1; then
   # Use a slimmer prompt config in $HOME and ~/.claude when one is bundled.
   if [[ -r "$HOME/.config/starship-home.toml" ]]; then
@@ -80,13 +89,13 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-if [[ -z "${SSH_CONNECTION:-}" && "${TERM:-}" != xterm-ghostty && "${TERM_PROGRAM:-}" != ghostty ]]; then
-  ZSH_HIGHLIGHT_HIGHLIGHTERS=(${=ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
-  _source_first \
-    "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
-    /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-    "$HOME/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-fi
+# ${=...} forces word-splitting: zsh keeps an unquoted default as ONE element,
+# which would make the plugin build an invalid `typeset ..._main brackets_cache`.
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(${=ZSH_HIGHLIGHT_HIGHLIGHTERS:-main brackets})
+_source_first \
+  "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$HOME/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 unsetopt correct_all

@@ -49,9 +49,19 @@ unset _conda_root
 
 # NVM node for non-interactive tools.
 if [[ -d "$HOME/.nvm/versions/node" ]]; then
-  _nvm_node_dir="$(command ls -d "$HOME/.nvm/versions/node"/v* 2>/dev/null | sort -V | tail -1)"
+  autoload -Uz is-at-least
+  _nvm_node_dir=
+  _nvm_node_version=
+  for _nvm_candidate in "$HOME/.nvm/versions/node"/v*(N/); do
+    _nvm_candidate_version="${_nvm_candidate:t}"
+    _nvm_candidate_version="${_nvm_candidate_version#v}"
+    if [[ -z "$_nvm_node_version" ]] || is-at-least "$_nvm_node_version" "$_nvm_candidate_version"; then
+      _nvm_node_dir="$_nvm_candidate"
+      _nvm_node_version="$_nvm_candidate_version"
+    fi
+  done
   [[ -n "$_nvm_node_dir" && -d "$_nvm_node_dir/bin" ]] && _path_prepend "$_nvm_node_dir/bin"
-  unset _nvm_node_dir
+  unset _nvm_node_dir _nvm_node_version _nvm_candidate _nvm_candidate_version
 fi
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"

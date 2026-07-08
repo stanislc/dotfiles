@@ -182,9 +182,18 @@ symbol = "󰏗 "
 
 [python]
 detect_extensions = []
-detect_files = ['!.claude','!.codex']
 detect_folders = []
 symbol = " "
+detect_files = [
+  "pyproject.toml",
+  "requirements.txt",
+  "requirements-dev.txt",
+  "setup.py",
+  "setup.cfg",
+  "tox.ini",
+  "uv.lock",
+  "poetry.lock",
+]
 
 [rlang]
 symbol = "󰟔 "

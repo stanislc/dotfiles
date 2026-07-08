@@ -28,7 +28,7 @@ match=$(echo "$selected" | tail -1)
 target="${match:-$query}"
 
 if tmux has-session -t "=$target" 2>/dev/null; then
-  tmux switch-client -t "$target"
+  tmux switch-client -t "=$target"
 else
-  tmux new-session -d -s "$target" && tmux switch-client -t "$target"
+  tmux new-session -d -s "$target" && tmux switch-client -t "=$target"
 fi

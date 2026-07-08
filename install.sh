@@ -189,7 +189,11 @@ install_packages() {
   case "$profile" in
     macos)
       if ! command -v brew >/dev/null 2>&1; then
-        run /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        if ((dry_run)); then
+          echo "DRY-RUN: install Homebrew"
+        else
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
         for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
           [[ -x "$b" ]] && { eval "$("$b" shellenv)"; break; }
         done
@@ -233,7 +237,11 @@ install_packages() {
   # Tools apt does not package; user-local installs (work without sudo).
   if [[ "$profile" != macos ]]; then
     if ! command -v starship >/dev/null 2>&1; then
-      run sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y -b "$HOME/.local/bin"
+      if ((dry_run)); then
+        echo "DRY-RUN: install starship to $HOME/.local/bin"
+      else
+        sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y -b "$HOME/.local/bin"
+      fi
     fi
     local arch sesh_arch lg_ver
     arch="$(uname -m)"
@@ -241,14 +249,22 @@ install_packages() {
     install_release_bin "https://github.com/joshmedeski/sesh/releases/latest/download/sesh_Linux_${sesh_arch}.tar.gz" sesh
     install_release_bin "https://github.com/atuinsh/atuin/releases/latest/download/atuin-${arch}-unknown-linux-gnu.tar.gz" atuin
     if ! command -v lazygit >/dev/null 2>&1; then
-      lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -om1 '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
-      [[ -n "$lg_ver" ]] && install_release_bin "https://github.com/jesseduffield/lazygit/releases/download/${lg_ver}/lazygit_${lg_ver#v}_linux_${sesh_arch}.tar.gz" lazygit
+      if ((dry_run)); then
+        echo "DRY-RUN: install lazygit from latest GitHub release"
+      else
+        lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -om1 '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
+        [[ -n "$lg_ver" ]] && install_release_bin "https://github.com/jesseduffield/lazygit/releases/download/${lg_ver}/lazygit_${lg_ver#v}_linux_${sesh_arch}.tar.gz" lazygit
+      fi
     fi
     # git-delta: the linked .gitconfig sets core.pager=delta.
     if ! command -v delta >/dev/null 2>&1; then
       local d_ver
-      d_ver="$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | grep -om1 '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
-      [[ -n "$d_ver" ]] && install_release_bin "https://github.com/dandavison/delta/releases/download/${d_ver}/delta-${d_ver}-${arch}-unknown-linux-gnu.tar.gz" delta
+      if ((dry_run)); then
+        echo "DRY-RUN: install delta from latest GitHub release"
+      else
+        d_ver="$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | grep -om1 '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
+        [[ -n "$d_ver" ]] && install_release_bin "https://github.com/dandavison/delta/releases/download/${d_ver}/delta-${d_ver}-${arch}-unknown-linux-gnu.tar.gz" delta
+      fi
     fi
   fi
 

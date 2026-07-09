@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ "${TERM_PROGRAM:-}" = ghostty ] && command -v ghostty >/dev/null 2>&1; then
+  exec ghostty +ssh --terminfo=false --ssh=/usr/bin/ssh -- "$@"
+fi
+exec /usr/bin/ssh "$@"

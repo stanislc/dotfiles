@@ -129,6 +129,7 @@ link_file "$repo_dir/home/.config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
 link_file "$repo_dir/home/.condarc" "$HOME/.condarc"
 
 link_file "$repo_dir/home/.local/bin/osc-copy" "$HOME/.local/bin/osc-copy"
+link_file "$repo_dir/home/.local/bin/ssh" "$HOME/.local/bin/ssh"
 link_file "$repo_dir/home/.config/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
 
 # tmux loads ~/.tmux.conf IN ADDITION to the XDG config; retire any leftover.
@@ -147,6 +148,7 @@ link_file "$repo_dir/profiles/$profile/starship.toml" "$HOME/.config/starship.to
 
 if [[ "$profile" == macos ]]; then
   link_file "$repo_dir/home/.config/ghostty/config" "$HOME/.config/ghostty/config"
+  link_file "$repo_dir/home/.config/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 fi
 
 clone_if_missing() {

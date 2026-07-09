@@ -106,7 +106,9 @@ the untracked local overrides above, not in the repo.
   theme — config only, zellij itself is not in the package lists
 - `home/.local/bin/osc-copy`: OSC 52 clipboard helper used by tmux and Zellij;
   copies to every attached client, works over SSH
-- `home/.config/ghostty/config`: Ghostty terminal settings (macOS)
+- `home/.local/bin/ssh`: Ghostty-aware SSH wrapper; uses Ghostty's SSH fallback
+  in Ghostty and `/usr/bin/ssh` elsewhere
+- `home/.config/ghostty/config`: Ghostty terminal settings (macOS; also linked to Ghostty's Application Support config path)
 - `home/.vimrc`, `home/.config/nvim/init.vim`: Vim/Neovim defaults and plugins
 - `home/.condarc`: conda-forge + libmamba defaults
 - `profiles/*/profile.zsh`, `profiles/*/starship.toml`: per-platform shell and prompt config

@@ -63,7 +63,11 @@ if command -v atuin >/dev/null 2>&1; then
 fi
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="${ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE:-fg=244}"
-ZSH_AUTOSUGGEST_STRATEGY=(${=ZSH_AUTOSUGGEST_STRATEGY:-history completion})
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+else
+  ZSH_AUTOSUGGEST_STRATEGY=(${=ZSH_AUTOSUGGEST_STRATEGY:-history completion})
+fi
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="${ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE:-20}"
 _source_first \
   "${HOMEBREW_PREFIX:-}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" \

@@ -1,10 +1,11 @@
 # -----------------------------
 # General Behavior
 # -----------------------------
+auto-update-channel = tip
 confirm-close-surface = false
 quit-after-last-window-closed = false
 window-save-state = always
-shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
+shell-integration-features = cursor,sudo,title,ssh-env,path
 command = /bin/zsh
 # -----------------------------
 # Clipboard

@@ -76,6 +76,10 @@ case "$profile" in
     ;;
 esac
 
+# Find user-local tools before shell startup files have been reloaded, including
+# binaries installed earlier in this run or by a previous partial install.
+export PATH="$HOME/.local/bin:$PATH"
+
 run() {
   if ((dry_run)); then
     printf 'DRY-RUN:'
@@ -166,7 +170,11 @@ clone_if_missing() {
 # Used on Linux for tools that apt does not package; macOS gets them via brew.
 install_release_bin() {
   local url="$1" bin="$2" tmp src
-  command -v "$bin" >/dev/null 2>&1 && return 0
+  if command -v "$bin" >/dev/null 2>&1; then
+    # An executable can still fail to load on hosts with an older libc.
+    "$bin" --version >/dev/null 2>&1 && return 0
+    echo "reinstalling: $bin (installed binary cannot run)" >&2
+  fi
   if ((dry_run)); then
     echo "DRY-RUN: install $bin from $url"
     return 0
@@ -249,12 +257,15 @@ install_packages() {
     arch="$(uname -m)"
     sesh_arch="x86_64"; [[ "$arch" == aarch64 || "$arch" == arm64 ]] && sesh_arch="arm64"
     install_release_bin "https://github.com/joshmedeski/sesh/releases/latest/download/sesh_Linux_${sesh_arch}.tar.gz" sesh
-    install_release_bin "https://github.com/atuinsh/atuin/releases/latest/download/atuin-${arch}-unknown-linux-gnu.tar.gz" atuin
+    # The static musl build also runs on hosts with older glibc (e.g. Ubuntu 22.04).
+    install_release_bin "https://github.com/atuinsh/atuin/releases/latest/download/atuin-${arch}-unknown-linux-musl.tar.gz" atuin
     if ! command -v lazygit >/dev/null 2>&1; then
       if ((dry_run)); then
         echo "DRY-RUN: install lazygit from latest GitHub release"
       else
-        lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -om1 '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
+        # Consume the full response: grep -m1 can close the pipe early, making
+        # curl fail with error 23 and aborting the installer under pipefail.
+        lg_ver="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -o '"tag_name": *"v[^"]*"' | cut -d'"' -f4)"
         [[ -n "$lg_ver" ]] && install_release_bin "https://github.com/jesseduffield/lazygit/releases/download/${lg_ver}/lazygit_${lg_ver#v}_linux_${sesh_arch}.tar.gz" lazygit
       fi
     fi
@@ -264,7 +275,7 @@ install_packages() {
       if ((dry_run)); then
         echo "DRY-RUN: install delta from latest GitHub release"
       else
-        d_ver="$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | grep -om1 '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
+        d_ver="$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
         [[ -n "$d_ver" ]] && install_release_bin "https://github.com/dandavison/delta/releases/download/${d_ver}/delta-${d_ver}-${arch}-unknown-linux-gnu.tar.gz" delta
       fi
     fi
